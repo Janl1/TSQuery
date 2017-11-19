@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/app_servers"
+            android:icon="@drawable/ic_server"
+            android:title="Servers" />
+        <item
+            android:id="@+id/app_users"
+            android:icon="@drawable/ic_users"
+            android:title="Clients" />
+        <item
+            android:id="@+id/app_channels"
+            android:icon="@drawable/ic_channel"
+            android:title="Channel" />
+        <item
+            android:id="@+id/app_serverinfo"
+            android:icon="@drawable/is_serverinfo"
+            android:title="Serverinfo" />
+
+        <item
+            android:id="@+id/app_query_login"
+            android:icon="@drawable/ic_login"
+            android:title="Add TeamSpeak server" />
+    </group>
+
+</menu>
