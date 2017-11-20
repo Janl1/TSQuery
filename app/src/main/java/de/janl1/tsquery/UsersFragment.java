@@ -8,11 +8,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
@@ -33,6 +37,18 @@ public class UsersFragment extends Fragment {
     FragmentManager fm;
     SharedPreferences pref;
     ProgressDialog pdiag;
+    TS3Config config = null;
+    TS3Query query = null;
+    TS3Api api = null;
+    ListView listv = null;
+
+    String HOST = "";
+    String USER = "";
+    String PASSWORD = "";
+    String NICKNAME = "";
+    int PORT = 0;
+    int QPORT = 0;
+
     public UsersFragment() {
     }
 
@@ -43,8 +59,8 @@ public class UsersFragment extends Fragment {
 
         pref = getActivity().getSharedPreferences("TSQUERY", Context.MODE_PRIVATE);
         fm = getFragmentManager();
+        listv = (ListView) root.findViewById(R.id.list);
 
-        pdiag = new ProgressDialog(getActivity());
         pdiag = new ProgressDialog(getActivity());
         pdiag.setTitle("Please wait");
         pdiag.setMessage("Loading data ...");
@@ -61,19 +77,9 @@ public class UsersFragment extends Fragment {
                     builder.setMessage("TSQuery stopped working!\n\nError message: " + ex.getMessage() + "\n\nPlease try again later or check the credential configuration of the server.").setTitle("An error occured")
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    // FIRE ZE MISSILES!
+                                    dialog.cancel();
                                 }
                             });
-
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                pdiag.dismiss();
-                            }catch (Exception e){}
-                            builder.create().show();
-                        }
-                    });
                 }
 
             }
@@ -85,15 +91,7 @@ public class UsersFragment extends Fragment {
     }
 
     private void initClientLoading(View view) {
-
         if(!pref.getString("selectedserver", "").equals("")) {
-
-            String HOST = "";
-            String USER = "";
-            String PASSWORD = "";
-            String NICKNAME = "";
-            int PORT = 0;
-            int QPORT = 0;
 
             try {
                 String[] tagetServer = pref.getString("selectedserver", "").split(":");
@@ -117,59 +115,177 @@ public class UsersFragment extends Fragment {
             }
 
 
-            System.out.println("[SERVER_CONFIG] " + HOST + " " + USER + " " + PASSWORD + " " + PORT + " " + QPORT);
-            final ListView listv = (ListView) view.findViewById(R.id.list);
-            final TS3Config config = new TS3Config();
-            config.setHost(HOST);
-            config.setDebugLevel(Level.WARNING);
-            config.setLoginCredentials(USER, PASSWORD);
-            config.setQueryPort(QPORT);
-            final TS3Query query = new TS3Query(config);
-            query.connect();
 
-            final TS3Api api = query.getApi();
-            api.selectVirtualServerByPort(PORT);
-            api.setNickname(NICKNAME);
+            final String[][] clientslist = new String[1][1];
 
-            ArrayList<String> clients = new ArrayList<String>();
-            for (Client c : api.getClients()) {
-
-                if(c.getNickname().equals(NICKNAME)) {
-                    continue;
-                }
-
-                String status = "NORMAL";
-                if(c.isInputMuted()) {
-                    status = "MIC_MUTED";
-                }
-
-                if(c.isOutputMuted()) {
-                    status = "SOUND_MUTED";
-                }
-
-                if(!c.isInputHardware()) {
-                    status = "NO_MIC";
-                }
-
-                System.out.println("[TSQUERY-LOG] " + c.getNickname() + "###" + api.getChannelInfo(c.getChannelId()).getName() + "###" + status);
-                clients.add(c.getNickname() + "###" + api.getChannelInfo(c.getChannelId()).getName() + "###" + status);
-            }
-
-            final CustomList adapter = new CustomList(getActivity(), clients.toArray(new String[0]));
-            getActivity().runOnUiThread(new Runnable() {
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    listv.setAdapter(adapter);
-                    pdiag.dismiss();
+                    initTeamSpeakAPI();
+
+                    ArrayList<String> clients = new ArrayList<String>();
+                    for (Client c : api.getClients()) {
+
+                        if(c.getNickname().equals(NICKNAME)) {
+                            continue;
+                        }
+
+                        String status = "NORMAL";
+                        if(c.isInputMuted()) {
+                            status = "MIC_MUTED";
+                        }
+
+                        if(c.isOutputMuted()) {
+                            status = "SOUND_MUTED";
+                        }
+
+                        if(!c.isInputHardware()) {
+                            status = "NO_MIC";
+                        }
+
+                        clients.add(c.getNickname() + "###" + api.getChannelInfo(c.getChannelId()).getName() + "###" + status);
+                    }
+
+                    clientslist[0] = clients.toArray(new String[0]);
+                    final CustomList adapter = new CustomList(getActivity(), clientslist[0]);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listv.setAdapter(adapter);
+                            pdiag.dismiss();
+                        }
+                    });
+                    query.exit();
+                }
+            }).start();
+
+            listv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
+
+                    String[] options = new String[]{"Info","Kick","Ban"};
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(clientslist[0][position].split("###")[0])
+                            .setItems(options, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which)
+                                    {
+                                        case 0:
+                                            break;
+                                        case 1:
+                                            clientKick(view, clientslist[0][position].split("###")[0]);
+                                            break;
+                                        case 2:
+                                            clientBan(view, clientslist[0][position].split("###")[0]);
+                                            break;
+                                    }
+                                }
+                            });
+                    builder.create().show();
+
                 }
             });
-            query.exit();
 
         } else {
             fm.beginTransaction().replace(R.id.content_frame, new ServerFragment()).commit();
             getActivity().setTitle("TSQuery | Servers");
         }
-
     }
 
+    private void clientKick(final View view, final String clientname)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        final View v_iew=inflater.inflate(R.layout.dialog_kick, null);
+        builder.setView(v_iew)
+                .setPositiveButton("Kick", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        final EditText reason = (EditText)v_iew.findViewById(R.id.reason);
+
+                        pdiag = new ProgressDialog(getActivity());
+                        pdiag.setTitle("Please wait");
+                        pdiag.setMessage("Loading data ...");
+                        pdiag.setCancelable(false);
+                        pdiag.show();
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                initTeamSpeakAPI();
+                                int target = api.getClientByName(clientname).get(0).getId();
+                                api.kickClientFromServer(reason.getText().toString(), target);
+                                query.exit();
+                                initClientLoading(view);
+                            }
+                        }).start();
+                        Toast.makeText(getActivity().getBaseContext(), "Client kicked!", Toast.LENGTH_SHORT).show();
+
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setCancelable(false);
+        builder.create().show();
+    }
+
+    private void clientBan(final View view, final String clientname)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        final View v_iew=inflater.inflate(R.layout.dialog_ban, null);
+        builder.setView(v_iew)
+                .setPositiveButton("Kick", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        final EditText reason = (EditText)v_iew.findViewById(R.id.reason);
+                        final EditText time = (EditText)v_iew.findViewById(R.id.time);
+
+                        pdiag = new ProgressDialog(getActivity());
+                        pdiag.setTitle("Please wait");
+                        pdiag.setMessage("Loading data ...");
+                        pdiag.setCancelable(false);
+                        pdiag.show();
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                initTeamSpeakAPI();
+                                int target = api.getClientByName(clientname).get(0).getId();
+                                api.banClient(target, Long.parseLong(time.getText().toString()), reason.getText().toString());
+                                query.exit();
+                                initClientLoading(view);
+                            }
+                        }).start();
+                        Toast.makeText(getActivity().getBaseContext(), "Client banned!", Toast.LENGTH_SHORT).show();
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setCancelable(false);
+        builder.create().show();
+    }
+
+    private void initTeamSpeakAPI()
+    {
+        config = new TS3Config();
+        config.setHost(HOST);
+        config.setDebugLevel(Level.WARNING);
+        config.setLoginCredentials(USER, PASSWORD);
+        config.setQueryPort(QPORT);
+        query = new TS3Query(config);
+        query.connect();
+
+        api = query.getApi();
+        api.selectVirtualServerByPort(PORT);
+        api.setNickname(NICKNAME);
+    }
 }
