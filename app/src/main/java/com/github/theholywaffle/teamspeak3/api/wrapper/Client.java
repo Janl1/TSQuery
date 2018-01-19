@@ -16,20 +16,26 @@ import java.util.HashMap;
 import com.github.theholywaffle.teamspeak3.StringUtil;
 import com.github.theholywaffle.teamspeak3.api.ClientProperty;
 
+
 public class Client  extends Wrapper{
+	public String channel_name = "";
 
 	public Client(HashMap<String, String> map) {
 		super(map);
 	}
-	
+
 	public boolean canTalk(){
 		return getBoolean(ClientProperty.CLIENT_IS_TALKER);
 	}
 	
+	public String getConnectionIp(){
+		return get(ClientProperty.CONNECTION_CLIENT_IP);
+	}
+
 	public String getAwayMessage(){
 		return get(ClientProperty.CLIENT_AWAY_MESSAGE);
 	}
-	
+
 	public int getChannelGroupId(){
 		return getInt(ClientProperty.CLIENT_CHANNEL_GROUP_ID);
 	}

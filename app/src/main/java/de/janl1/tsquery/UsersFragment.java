@@ -116,38 +116,30 @@ public class UsersFragment extends Fragment {
 
 
 
-            final String[][] clientslist = new String[1][1];
+            final Client[][] clientslist = new Client[1][1];
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     initTeamSpeakAPI();
 
-                    ArrayList<String> clients = new ArrayList<String>();
+                    ArrayList<Client> clients = new ArrayList<Client>();
                     for (Client c : api.getClients()) {
 
                         if(c.getNickname().equals(NICKNAME)) {
                             continue;
                         }
 
-                        String status = "NORMAL";
-                        if(c.isInputMuted()) {
-                            status = "MIC_MUTED";
-                        }
-
-                        if(c.isOutputMuted()) {
-                            status = "SOUND_MUTED";
-                        }
-
-                        if(!c.isInputHardware()) {
-                            status = "NO_MIC";
-                        }
-
-                        clients.add(c.getNickname() + "###" + api.getChannelInfo(c.getChannelId()).getName() + "###" + status);
+                        //clients.add(c.getNickname() + "###" + api.getChannelInfo(c.getChannelId()).getName() + "###" + status);
+                        c.channel_name = api.getChannelInfo(c.getChannelId()).getName();
+                        clients.add(c);
                     }
 
-                    clientslist[0] = clients.toArray(new String[0]);
-                    final CustomList adapter = new CustomList(getActivity(), clientslist[0]);
+                    clientslist[0] = clients.toArray(new Client[0]);
+
+                    sorting(clientslist[0], 0, clientslist[0].length -1);
+
+                    final CustomList adapter = new CustomList(getActivity(), clientslist[0], api);
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -165,7 +157,7 @@ public class UsersFragment extends Fragment {
 
                     String[] options = new String[]{"Info","Kick","Ban"};
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(clientslist[0][position].split("###")[0])
+                    builder.setTitle(clientslist[0][position].getNickname())
                             .setItems(options, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     switch (which)
@@ -173,10 +165,10 @@ public class UsersFragment extends Fragment {
                                         case 0:
                                             break;
                                         case 1:
-                                            clientKick(view, clientslist[0][position].split("###")[0]);
+                                            clientKick(view, clientslist[0][position].getNickname());
                                             break;
                                         case 2:
-                                            clientBan(view, clientslist[0][position].split("###")[0]);
+                                            clientBan(view, clientslist[0][position].getNickname());
                                             break;
                                     }
                                 }
@@ -287,5 +279,29 @@ public class UsersFragment extends Fragment {
         api = query.getApi();
         api.selectVirtualServerByPort(PORT);
         api.setNickname(NICKNAME);
+    }
+
+    public void sorting(Client array[], int start, int end) {
+        int i = start;
+        int k = end;
+        if (end - start >= 1) {
+            String pivot = array[start].channel_name;
+            while (k > i) {
+                while (array[i].channel_name.toUpperCase().compareTo(pivot.toUpperCase()) <= 0 && i <= end && k > i)
+                    i++;
+                while (array[k].channel_name.toUpperCase().compareTo(pivot.toUpperCase()) > 0 && k >= start && k >= i)
+                    k--;
+                if (k > i)
+                    swap(array, i, k);
+            }
+            swap(array, start, k);
+            sorting(array, start, k - 1);
+            sorting(array, k + 1, end);
+        } else { return; }
+    }
+    public void swap(Client array[], int index1, int index2) {
+        Client temp = array[index1];
+        array[index1] = array[index2];
+        array[index2] = temp;
     }
 }

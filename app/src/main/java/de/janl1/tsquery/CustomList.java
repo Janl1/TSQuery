@@ -8,6 +8,8 @@
 package de.janl1.tsquery;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,40 +17,68 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.theholywaffle.teamspeak3.TS3Api;
+import com.github.theholywaffle.teamspeak3.TS3Config;
+import com.github.theholywaffle.teamspeak3.TS3Query;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
-public class CustomList extends ArrayAdapter<String>{
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.logging.Level;
+
+
+public class CustomList extends ArrayAdapter<Client>{
 
     private final Activity context;
-    private final String[] nick;
-    public CustomList(Activity context, String[] web) {
+    private final Client[] nick;
+
+    TS3Api api = null;
+
+    public CustomList(Activity context, Client[] web, TS3Api api) {
         super(context, R.layout.listview, web);
 
+        this.api = api;
         this.context = context;
         this.nick = web;
 
     }
+
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView= inflater.inflate(R.layout.listview, null, true);
-
+        Client c = nick[position];
         TextView channel = (TextView) rowView.findViewById(R.id.client_channel);
+        TextView ip = (TextView) rowView.findViewById(R.id.client_ip);
+        TextView client_uid = (TextView) rowView.findViewById(R.id.client_uid);
         TextView name = (TextView) rowView.findViewById(R.id.server_label);
         ImageView icon = (ImageView) rowView.findViewById(R.id.client_icon);
 
-        String[] split = nick[position].split("###");
 
-        name.setText(split[0]);
-        channel.setText(split[1]);
+        if(api == null) {
+            System.out.println("API IS NULL");
+        }
 
-        if(split[2].equals("MIC_MUTED")) {
+        ip.setText(c.getPlatform() + " | " + c.getCountry());
+        client_uid.setText(c.getUniqueIdentifier());
+        name.setText(c.getNickname());
+        //channel.setText(api.getChannelInfo(c.getChannelId()).getName());
+        channel.setText(c.channel_name);
+
+        icon.setImageResource(R.mipmap.ic_normal);
+
+        if(c.isInputMuted()) {
             icon.setImageResource(R.mipmap.ic_mic_muted);
-        } else if (split[2].equals("SOUND_MUTED")) {
+        }
+
+        if(c.isOutputMuted()) {
             icon.setImageResource(R.mipmap.ic_sound_muted);
-        } else if (split[2].equals("NO_MIC")) {
+        }
+
+        if(!c.isInputHardware()) {
             icon.setImageResource(R.mipmap.ic_mic_off);
-        } else if (split[2].equals("NORMAL")) {
-            icon.setImageResource(R.mipmap.ic_normal);
         }
 
         return rowView;
