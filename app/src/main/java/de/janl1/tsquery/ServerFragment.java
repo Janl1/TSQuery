@@ -91,6 +91,18 @@ public class ServerFragment extends Fragment {
             final ServerList adapter = new ServerList(getActivity(), serverslist);
             listv.setAdapter(adapter);
 
+            listv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                    editor.putString("selectedserver",serverslist[i].split("###")[1]);
+                    editor.commit();
+                    fm.beginTransaction().replace(R.id.content_frame, new UsersFragment()).commit();
+
+                    return false;
+                }
+            });
+
             listv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
