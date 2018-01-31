@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     SharedPreferences pref;
+    SharedPreferences.Editor editor;
     FragmentManager fm;
     NavigationView navigationView;
     TextView currentServer;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity
         setTitle("TSQuery | Servers");
 
         pref = getSharedPreferences("TSQUERY", Context.MODE_PRIVATE);
+        editor = pref.edit();
         updateCurrentServer();
     }
 
@@ -129,6 +131,8 @@ public class MainActivity extends AppCompatActivity
             fm.beginTransaction().replace(R.id.content_frame, new ServerinfoFragment()).commit();
         } else if (id == R.id.app_query_login) {
             setTitle("TSQuery | Add server");
+            editor.putString("serveredit_mode", "ADD_SERVER");
+            editor.commit();
             fm.beginTransaction().replace(R.id.content_frame, new LoginFragment()).commit();
         } else if(id == R.id.app_servers) {
             setTitle("TSQuery | Servers");

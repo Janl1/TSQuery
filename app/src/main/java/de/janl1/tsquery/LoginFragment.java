@@ -42,7 +42,34 @@ public class LoginFragment extends Fragment {
         qport = (EditText)root.findViewById(R.id.login_qport);
         nickname = (EditText)root.findViewById(R.id.login_nickname);
 
-        loadSavedData(root);
+
+        if(pref.getString("serveredit_mode", "").equals("EDIT_SERVER"))
+        {
+            String server = pref.getString("selectedserver", "");
+            String servers = pref.getString("serverconfig", "");
+
+            try {
+                JSONArray servers_arr = new JSONArray(servers);
+
+                for (int i = 0; i < servers_arr.length(); i++){
+                    JSONObject server_obj = servers_arr.getJSONObject(i);
+                    if((server_obj.getString("v_login_host") + ":" + server_obj.getString("v_login_port")+ ":" + server_obj.getString("v_login_qport")).equals(server))
+                    {
+                        label.setText(server_obj.getString("v_label"));
+                        host.setText(server_obj.getString("v_login_host"));
+                        username.setText(server_obj.getString("v_login_username"));
+                        pw.setText(server_obj.getString("v_login_pw"));
+                        port.setText(server_obj.getString("v_login_port"));
+                        qport.setText(server_obj.getString("v_login_qport"));
+                        nickname.setText(server_obj.getString("v_login_nickname"));
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,62 +92,73 @@ public class LoginFragment extends Fragment {
             return;
         }
 
-        if(pref.getString("serverconfig","").equals("")) {
-            String json = new JSONArray().put(new JSONObject()
-                    .put("v_label", label.getText().toString())
-                    .put("v_login_host", host.getText().toString())
-                    .put("v_login_username", username.getText().toString())
-                    .put("v_login_pw", pw.getText().toString())
-                    .put("v_login_port", port.getText().toString())
-                    .put("v_login_qport", qport.getText().toString())
-                    .put("v_login_nickname", nickname.getText().toString())
-                    .toString()).toString();
-            System.out.println("[TSQUERY-LOG] SERVER ADD INIT :: " + json);
-            editor.putString("serverconfig", json);
-            editor.putString("selectedserver", host.getText().toString() + ":" + port.getText().toString() + ":" + qport.getText().toString());
-            editor.commit();
+        if(pref.getString("serveredit_mode", "").equals("EDIT_SERVER"))
+        {
+            String server = pref.getString("selectedserver", "");
+            String servers = pref.getString("serverconfig", "");
+
+            try {
+                JSONArray servers_arr = new JSONArray(servers);
+
+                for (int i = 0; i < servers_arr.length(); i++){
+                    JSONObject server_obj = servers_arr.getJSONObject(i);
+                    if((server_obj.getString("v_login_host") + ":" + server_obj.getString("v_login_port")+ ":" + server_obj.getString("v_login_qport")).equals(server))
+                    {
+                        JSONObject newServerSettings = new JSONObject()
+                                .put("v_label", label.getText().toString())
+                                .put("v_login_host", host.getText().toString())
+                                .put("v_login_username", username.getText().toString())
+                                .put("v_login_pw", pw.getText().toString())
+                                .put("v_login_port", port.getText().toString())
+                                .put("v_login_qport", qport.getText().toString())
+                                .put("v_login_nickname", nickname.getText().toString());
+
+                        server_obj = newServerSettings;
+                        servers_arr.put(i, server_obj);
+                    }
+                }
+
+                editor.putString("serverconfig", servers_arr.toString());
+                editor.commit();
+                Snackbar.make(view, "Server edited!", Snackbar.LENGTH_SHORT).show();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Snackbar.make(view, "Something went wrong, try again!", Snackbar.LENGTH_SHORT).show();
+            }
+
         } else {
-            JSONArray jsonArray = new JSONArray(pref.getString("serverconfig",""));
-            jsonArray.put(new JSONObject()
-                    .put("v_label", label.getText().toString())
-                    .put("v_login_host", host.getText().toString())
-                    .put("v_login_username", username.getText().toString())
-                    .put("v_login_pw", pw.getText().toString())
-                    .put("v_login_port", port.getText().toString())
-                    .put("v_login_qport", qport.getText().toString())
-                    .put("v_login_nickname", nickname.getText().toString())
-                    .toString());
-            System.out.println("[TSQUERY-LOG] SERVER ADD :: " + jsonArray.toString());
-            editor.putString("serverconfig", jsonArray.toString());
-            editor.commit();
+            if(pref.getString("serverconfig","").equals("")) {
+                String json = new JSONArray().put(new JSONObject()
+                        .put("v_label", label.getText().toString())
+                        .put("v_login_host", host.getText().toString())
+                        .put("v_login_username", username.getText().toString())
+                        .put("v_login_pw", pw.getText().toString())
+                        .put("v_login_port", port.getText().toString())
+                        .put("v_login_qport", qport.getText().toString())
+                        .put("v_login_nickname", nickname.getText().toString())
+                        .toString()).toString();
+                System.out.println("[TSQUERY-LOG] SERVER ADD INIT :: " + json);
+                editor.putString("serverconfig", json);
+                editor.putString("selectedserver", host.getText().toString() + ":" + port.getText().toString() + ":" + qport.getText().toString());
+                editor.commit();
+            } else {
+                JSONArray jsonArray = new JSONArray(pref.getString("serverconfig",""));
+                jsonArray.put(new JSONObject()
+                        .put("v_label", label.getText().toString())
+                        .put("v_login_host", host.getText().toString())
+                        .put("v_login_username", username.getText().toString())
+                        .put("v_login_pw", pw.getText().toString())
+                        .put("v_login_port", port.getText().toString())
+                        .put("v_login_qport", qport.getText().toString())
+                        .put("v_login_nickname", nickname.getText().toString())
+                        .toString());
+                System.out.println("[TSQUERY-LOG] SERVER ADD :: " + jsonArray.toString());
+                editor.putString("serverconfig", jsonArray.toString());
+                editor.commit();
+            }
+
+            Snackbar.make(view, "Server added!", Snackbar.LENGTH_SHORT).show();
         }
-
-
-        /*editor.putString("v_label", label.getText().toString());
-        editor.putString("v_login_host", host.getText().toString());
-        editor.putString("v_login_username", username.getText().toString());
-        editor.putString("v_login_pw", pw.getText().toString());
-        editor.putString("v_login_port", port.getText().toString());
-        editor.putString("v_login_qport", qport.getText().toString());
-        editor.putString("v_login_nickname", nickname.getText().toString());
-
-        editor.commit();*/
-
-        Snackbar.make(view, "Server added!", Snackbar.LENGTH_SHORT).show();
-    }
-
-    private void loadSavedData(View view)
-    {
-
-
-        System.out.println("[TSQUERY-LOG] CURRENT CONFIG :: " + pref.getString("serverconfig",""));
-        /* host.setText(pref.getString("v_login_host",""));
-        username.setText(pref.getString("v_login_username",""));
-        pw.setText(pref.getString("v_login_pw",""));
-        port.setText(pref.getString("v_login_port","9987"));
-        qport.setText(pref.getString("v_login_qport","10011"));
-        nickname.setText(pref.getString("v_login_nickname","")); */
-
-
     }
 }

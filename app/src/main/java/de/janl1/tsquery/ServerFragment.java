@@ -108,6 +108,10 @@ public class ServerFragment extends Fragment {
                                             Snackbar.make(view, "Server selected!", Snackbar.LENGTH_SHORT).show();
                                             break;
                                         case 1:
+                                            editor.putString("selectedserver",serverslist[position].split("###")[1]);
+                                            editor.putString("serveredit_mode", "ADD_SERVER");
+                                            editor.commit();
+
                                             break;
                                         case 2:
                                             break;
