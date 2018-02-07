@@ -121,33 +121,33 @@ public class UsersFragment extends Fragment {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    initTeamSpeakAPI();
+                    if(initTeamSpeakAPI()){
+                        ArrayList<Client> clients = new ArrayList<Client>();
+                        for (Client c : api.getClients()) {
 
-                    ArrayList<Client> clients = new ArrayList<Client>();
-                    for (Client c : api.getClients()) {
+                            if(c.getNickname().equals(NICKNAME)) {
+                                continue;
+                            }
 
-                        if(c.getNickname().equals(NICKNAME)) {
-                            continue;
+                            //clients.add(c.getNickname() + "###" + api.getChannelInfo(c.getChannelId()).getName() + "###" + status);
+                            c.channel_name = api.getChannelInfo(c.getChannelId()).getName();
+                            clients.add(c);
                         }
 
-                        //clients.add(c.getNickname() + "###" + api.getChannelInfo(c.getChannelId()).getName() + "###" + status);
-                        c.channel_name = api.getChannelInfo(c.getChannelId()).getName();
-                        clients.add(c);
+                        clientslist[0] = clients.toArray(new Client[0]);
+
+                        sorting(clientslist[0], 0, clientslist[0].length -1);
+
+                        final CustomList adapter = new CustomList(getActivity(), clientslist[0], api);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listv.setAdapter(adapter);
+                                pdiag.dismiss();
+                            }
+                        });
+                        query.exit();
                     }
-
-                    clientslist[0] = clients.toArray(new Client[0]);
-
-                    sorting(clientslist[0], 0, clientslist[0].length -1);
-
-                    final CustomList adapter = new CustomList(getActivity(), clientslist[0], api);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            listv.setAdapter(adapter);
-                            pdiag.dismiss();
-                        }
-                    });
-                    query.exit();
                 }
             }).start();
 
@@ -205,11 +205,22 @@ public class UsersFragment extends Fragment {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                initTeamSpeakAPI();
-                                int target = api.getClientByName(clientname).get(0).getId();
-                                api.kickClientFromServer(reason.getText().toString(), target);
-                                query.exit();
-                                initClientLoading(view);
+                                if(initTeamSpeakAPI())
+                                {
+                                    int target = api.getClientByName(clientname).get(0).getId();
+                                    api.kickClientFromServer(reason.getText().toString(), target);
+                                    query.exit();
+                                    initClientLoading(view);
+                                }
+
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            pdiag.cancel();
+                                        } catch(Exception e){}
+                                    }
+                                });
                             }
                         }).start();
                         Toast.makeText(getActivity().getBaseContext(), "Client kicked!", Toast.LENGTH_SHORT).show();
@@ -247,11 +258,22 @@ public class UsersFragment extends Fragment {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                initTeamSpeakAPI();
-                                int target = api.getClientByName(clientname).get(0).getId();
-                                api.banClient(target, Long.parseLong(time.getText().toString()), reason.getText().toString());
-                                query.exit();
-                                initClientLoading(view);
+                                if(initTeamSpeakAPI())
+                                {
+                                    int target = api.getClientByName(clientname).get(0).getId();
+                                    api.banClient(target, Long.parseLong(time.getText().toString()), reason.getText().toString());
+                                    query.exit();
+                                    initClientLoading(view);
+                                }
+
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            pdiag.cancel();
+                                        } catch(Exception e){}
+                                    }
+                                });
                             }
                         }).start();
                         Toast.makeText(getActivity().getBaseContext(), "Client banned!", Toast.LENGTH_SHORT).show();
@@ -266,19 +288,46 @@ public class UsersFragment extends Fragment {
         builder.create().show();
     }
 
-    private void initTeamSpeakAPI()
+    private boolean initTeamSpeakAPI()
     {
-        config = new TS3Config();
-        config.setHost(HOST);
-        config.setDebugLevel(Level.WARNING);
-        config.setLoginCredentials(USER, PASSWORD);
-        config.setQueryPort(QPORT);
-        query = new TS3Query(config);
-        query.connect();
+        try {
+            config = new TS3Config();
+            config.setHost(HOST);
+            config.setDebugLevel(Level.WARNING);
+            config.setLoginCredentials(USER, PASSWORD);
+            config.setQueryPort(QPORT);
+            query = new TS3Query(config);
+            query.connect();
 
-        api = query.getApi();
-        api.selectVirtualServerByPort(PORT);
-        api.setNickname(NICKNAME);
+            api = query.getApi();
+            api.selectVirtualServerByPort(PORT);
+            api.setNickname(NICKNAME);
+            return true;
+
+        } catch (com.github.theholywaffle.teamspeak3.api.exception.TS3ConnectionFailedException ex)
+        {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    try {
+                        pdiag.dismiss();
+                    } catch(Exception e){}
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("Could not establish connection to TeamSpeak server! Check the query credentials and try again!")
+                            .setTitle("Application error")
+                            .setPositiveButton("Okey", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            });
+                    builder.create().show();
+                }
+            });
+
+            return false;
+        }
+
     }
 
     public void sorting(Client array[], int start, int end) {

@@ -126,6 +126,7 @@ public class ServerFragment extends Fragment {
 
                                             break;
                                         case 2:
+                                            deleteConfig(serverslist[position].split("###")[1]);
                                             break;
                                     }
                                 }
@@ -134,5 +135,49 @@ public class ServerFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private void deleteConfig(final String ident)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Are you sure?")
+                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        deleteConfigAction(ident);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void deleteConfigAction(String ident)
+    {
+        try {
+            JSONArray servers = new JSONArray(pref.getString("serverconfig", ""));
+
+            for (int i = 0; i < servers.length(); i++)
+            {
+                JSONObject server = new JSONObject(servers.getString(i));
+                if(ident.equals(server.getString("v_login_host") + ":" + server.getString("v_login_port") + ":" + server.getString("v_login_qport"))) {
+                    servers.remove(i);
+
+
+                    editor.putString("serverconfig",servers.toString());
+                    editor.commit();
+
+                    Snackbar.make(getActivity().getWindow().getDecorView().findViewById(android.R.id.content), "Server deleted!", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        initServerLoading(getActivity().getWindow().getDecorView().findViewById(android.R.id.content));
     }
 }
