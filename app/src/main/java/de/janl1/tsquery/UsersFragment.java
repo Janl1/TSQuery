@@ -184,6 +184,48 @@ public class UsersFragment extends Fragment {
         }
     }
 
+    private boolean initTeamSpeakAPI()
+    {
+        try {
+            config = new TS3Config();
+            config.setHost(HOST);
+            config.setDebugLevel(Level.WARNING);
+            config.setLoginCredentials(USER, PASSWORD);
+            config.setQueryPort(QPORT);
+            query = new TS3Query(config);
+            query.connect();
+
+            api = query.getApi();
+            api.selectVirtualServerByPort(PORT);
+            api.setNickname(NICKNAME);
+            return true;
+
+        } catch (com.github.theholywaffle.teamspeak3.api.exception.TS3ConnectionFailedException ex)
+        {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    try {
+                        pdiag.dismiss();
+                    } catch(Exception e){}
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("Could not establish connection to TeamSpeak server! Check the query credentials and try again!")
+                            .setTitle("Application error")
+                            .setPositiveButton("Okey", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            });
+                    builder.create().show();
+                }
+            });
+
+            return false;
+        }
+
+    }
+
     private void clientKick(final View view, final String clientname)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -286,48 +328,6 @@ public class UsersFragment extends Fragment {
         });
         builder.setCancelable(false);
         builder.create().show();
-    }
-
-    private boolean initTeamSpeakAPI()
-    {
-        try {
-            config = new TS3Config();
-            config.setHost(HOST);
-            config.setDebugLevel(Level.WARNING);
-            config.setLoginCredentials(USER, PASSWORD);
-            config.setQueryPort(QPORT);
-            query = new TS3Query(config);
-            query.connect();
-
-            api = query.getApi();
-            api.selectVirtualServerByPort(PORT);
-            api.setNickname(NICKNAME);
-            return true;
-
-        } catch (com.github.theholywaffle.teamspeak3.api.exception.TS3ConnectionFailedException ex)
-        {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    try {
-                        pdiag.dismiss();
-                    } catch(Exception e){}
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage("Could not establish connection to TeamSpeak server! Check the query credentials and try again!")
-                            .setTitle("Application error")
-                            .setPositiveButton("Okey", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                }
-                            });
-                    builder.create().show();
-                }
-            });
-
-            return false;
-        }
-
     }
 
     public void sorting(Client array[], int start, int end) {

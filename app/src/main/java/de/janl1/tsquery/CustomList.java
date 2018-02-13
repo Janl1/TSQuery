@@ -8,8 +8,6 @@
 package de.janl1.tsquery;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,15 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
-import com.github.theholywaffle.teamspeak3.TS3Config;
-import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.logging.Level;
 
 
 public class CustomList extends ArrayAdapter<Client>{
@@ -37,7 +27,7 @@ public class CustomList extends ArrayAdapter<Client>{
     TS3Api api = null;
 
     public CustomList(Activity context, Client[] web, TS3Api api) {
-        super(context, R.layout.listview, web);
+        super(context, R.layout.listview_clients, web);
 
         this.api = api;
         this.context = context;
@@ -48,7 +38,7 @@ public class CustomList extends ArrayAdapter<Client>{
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
-        View rowView= inflater.inflate(R.layout.listview, null, true);
+        View rowView= inflater.inflate(R.layout.listview_clients, null, true);
         Client c = nick[position];
         TextView channel = (TextView) rowView.findViewById(R.id.client_channel);
         TextView ip = (TextView) rowView.findViewById(R.id.client_ip);

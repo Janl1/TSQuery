@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:text="Connected users"
+            android:text="Clients:"
             android:textAlignment="center"
             android:textSize="18sp"
             android:textStyle="bold"

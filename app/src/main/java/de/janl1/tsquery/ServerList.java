@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -21,7 +20,7 @@ public class ServerList extends ArrayAdapter<String>{
     private final Activity context;
     private final String[] nick;
     public ServerList(Activity context, String[] web) {
-        super(context, R.layout.listview, web);
+        super(context, R.layout.listview_clients, web);
 
         this.context = context;
         this.nick = web;
