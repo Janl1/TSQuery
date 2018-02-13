@@ -121,8 +121,9 @@ public class ServerFragment extends Fragment {
                                             break;
                                         case 1:
                                             editor.putString("selectedserver",serverslist[position].split("###")[1]);
-                                            editor.putString("serveredit_mode", "ADD_SERVER");
+                                            editor.putString("serveredit_mode", "EDIT_SERVER");
                                             editor.commit();
+                                            fm.beginTransaction().replace(R.id.content_frame, new LoginFragment()).commit();
 
                                             break;
                                         case 2:

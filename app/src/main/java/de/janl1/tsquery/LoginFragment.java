@@ -52,7 +52,7 @@ public class LoginFragment extends Fragment {
                 JSONArray servers_arr = new JSONArray(servers);
 
                 for (int i = 0; i < servers_arr.length(); i++){
-                    JSONObject server_obj = servers_arr.getJSONObject(i);
+                    JSONObject server_obj = new JSONObject(servers_arr.get(i).toString());
                     if((server_obj.getString("v_login_host") + ":" + server_obj.getString("v_login_port")+ ":" + server_obj.getString("v_login_qport")).equals(server))
                     {
                         label.setText(server_obj.getString("v_label"));
@@ -101,7 +101,7 @@ public class LoginFragment extends Fragment {
                 JSONArray servers_arr = new JSONArray(servers);
 
                 for (int i = 0; i < servers_arr.length(); i++){
-                    JSONObject server_obj = servers_arr.getJSONObject(i);
+                    JSONObject server_obj = new JSONObject(servers_arr.get(i).toString());
                     if((server_obj.getString("v_login_host") + ":" + server_obj.getString("v_login_port")+ ":" + server_obj.getString("v_login_qport")).equals(server))
                     {
                         JSONObject newServerSettings = new JSONObject()
