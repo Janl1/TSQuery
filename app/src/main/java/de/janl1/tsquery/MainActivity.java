@@ -147,7 +147,6 @@ public class MainActivity extends AppCompatActivity
 
     private void updateCurrentServer()
     {
-
         if(pref.getString("selectedserver", "").equals("")) {
             currentServer.setText("Server: None");
             return;
@@ -168,7 +167,5 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
             currentServer.setText("Server: None");
         }
-
-
     }
 }

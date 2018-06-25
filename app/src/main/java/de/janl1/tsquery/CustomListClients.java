@@ -19,14 +19,14 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
 
-public class CustomList extends ArrayAdapter<Client>{
+public class CustomListClients extends ArrayAdapter<Client>{
 
     private final Activity context;
     private final Client[] nick;
 
     TS3Api api = null;
 
-    public CustomList(Activity context, Client[] web, TS3Api api) {
+    public CustomListClients(Activity context, Client[] web, TS3Api api) {
         super(context, R.layout.listview_clients, web);
 
         this.api = api;

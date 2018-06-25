@@ -4,11 +4,9 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +27,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
 public class UsersFragment extends Fragment {
@@ -122,14 +119,13 @@ public class UsersFragment extends Fragment {
                 @Override
                 public void run() {
                     if(initTeamSpeakAPI()){
-                        ArrayList<Client> clients = new ArrayList<Client>();
+                        ArrayList<Client> clients = new ArrayList<>();
                         for (Client c : api.getClients()) {
 
                             if(c.getNickname().equals(NICKNAME)) {
                                 continue;
                             }
 
-                            //clients.add(c.getNickname() + "###" + api.getChannelInfo(c.getChannelId()).getName() + "###" + status);
                             c.channel_name = api.getChannelInfo(c.getChannelId()).getName();
                             clients.add(c);
                         }
@@ -138,7 +134,7 @@ public class UsersFragment extends Fragment {
 
                         sorting(clientslist[0], 0, clientslist[0].length -1);
 
-                        final CustomList adapter = new CustomList(getActivity(), clientslist[0], api);
+                        final CustomListClients adapter = new CustomListClients(getActivity(), clientslist[0], api);
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

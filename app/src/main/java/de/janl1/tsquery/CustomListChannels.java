@@ -28,7 +28,6 @@ public class CustomListChannels extends ArrayAdapter<Channel>{
 
     public CustomListChannels(Activity context, Channel[] web, TS3Api api) {
         super(context, R.layout.listview_channels, web);
-
         this.api = api;
         this.context = context;
         this.nick = web;

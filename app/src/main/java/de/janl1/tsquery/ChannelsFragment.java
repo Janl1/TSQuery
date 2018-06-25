@@ -18,6 +18,7 @@ import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.exception.TS3ConnectionFailedException;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -116,13 +117,23 @@ public class ChannelsFragment extends Fragment {
                 @Override
                 public void run() {
                     if(initTeamSpeakAPI()){
-                        ArrayList<Channel> clients = new ArrayList<Channel>();
+                        ArrayList<Channel> channels = new ArrayList<Channel>();
+                        java.util.List<Client> clients = api.getClients();
                         for (Channel c : api.getChannels()) {
 
-                            clients.add(c);
+                            channels.add(c);
+
+                            for (Client cl : clients)
+                            {
+                                if(cl.getChannelId() == c.getId())
+                                {
+
+                                }
+                            }
+
                         }
 
-                        clientslist[0] = clients.toArray(new Channel[0]);
+                        clientslist[0] = channels.toArray(new Channel[0]);
 
                         //sorting(clientslist[0], 0, clientslist[0].length -1);
 
