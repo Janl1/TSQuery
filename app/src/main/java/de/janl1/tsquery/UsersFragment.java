@@ -20,6 +20,7 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.exception.TS3ConnectionFailedException;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
 import org.json.JSONArray;
@@ -27,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 public class UsersFragment extends Fragment {
@@ -113,14 +115,31 @@ public class UsersFragment extends Fragment {
 
 
 
-            final Client[][] clientslist = new Client[1][1];
+            final ClientChannelObject[][] clientslist = new ClientChannelObject[1][1];
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     if(initTeamSpeakAPI()){
-                        ArrayList<Client> clients = new ArrayList<>();
-                        for (Client c : api.getClients()) {
+                        ArrayList<ClientChannelObject> clients = new ArrayList<>();
+
+                        List<Client> clients1 = api.getClients();
+                        List<Channel> channels = api.getChannels();
+
+                        for (Channel ch : channels)
+                        {
+                            clients.add(new ClientChannelObject().setChannel(ch));
+
+                            for (Client c : clients1)
+                            {
+                                if (c.getChannelId() == ch.getId())
+                                {
+                                    clients.add(new ClientChannelObject().setClient(c));
+                                }
+                            }
+                        }
+
+                        /*for (Client c : api.getClients()) {
 
                             if(c.getNickname().equals(NICKNAME)) {
                                 continue;
@@ -128,13 +147,13 @@ public class UsersFragment extends Fragment {
 
                             c.channel_name = api.getChannelInfo(c.getChannelId()).getName();
                             clients.add(c);
-                        }
+                        } */
 
-                        clientslist[0] = clients.toArray(new Client[0]);
+                        clientslist[0] = clients.toArray(new ClientChannelObject[0]);
 
-                        sorting(clientslist[0], 0, clientslist[0].length -1);
+                        //sorting(clientslist[0], 0, clientslist[0].length -1);
 
-                        final CustomListClients adapter = new CustomListClients(getActivity(), clientslist[0], api);
+                        final CustomListClients adapter = new CustomListClients(getActivity(), clientslist[0]);
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -153,7 +172,16 @@ public class UsersFragment extends Fragment {
 
                     String[] options = new String[]{"Info","Kick","Ban"};
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(clientslist[0][position].getNickname())
+
+                    final String nickname;
+                    if (clientslist[0][position].isChannel())
+                    {
+                        nickname = clientslist[0][position].getChannel().getName();
+                    } else {
+                        nickname = clientslist[0][position].getClient().getNickname();
+                    }
+
+                    builder.setTitle(nickname)
                             .setItems(options, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     switch (which)
@@ -161,10 +189,10 @@ public class UsersFragment extends Fragment {
                                         case 0:
                                             break;
                                         case 1:
-                                            clientKick(view, clientslist[0][position].getNickname());
+                                            clientKick(view, nickname);
                                             break;
                                         case 2:
-                                            clientBan(view, clientslist[0][position].getNickname());
+                                            clientBan(view, nickname);
                                             break;
                                     }
                                 }
