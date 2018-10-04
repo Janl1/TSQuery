@@ -8,6 +8,7 @@
 package de.janl1.tsquery;
 
 import android.app.Activity;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,18 @@ public class CustomListClients extends ArrayAdapter<ClientChannelObject>{
     private final Activity context;
     private final ClientChannelObject[] nick;
 
+    private static class ViewHolderChannel {
+        TextView name;
+    }
+
+    private static class ViewHolderClient {
+        TextView name;
+        TextView client_uid;
+        TextView ip;
+        ImageView icon;
+
+    }
+
     public CustomListClients(Activity context, ClientChannelObject[] web) {
         super(context, R.layout.listview_clients, web);
 
@@ -34,63 +47,107 @@ public class CustomListClients extends ArrayAdapter<ClientChannelObject>{
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
+    public int getItemViewType(int position) {
+
+        if(getItem(position).isChannel()) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public View getView(int position, View rowView, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
-        View rowView= inflater.inflate(R.layout.listview_clients, null, true);
 
         ClientChannelObject obj = nick[position];
 
         if (obj.isChannel())
         {
+            ViewHolderChannel vChannel;
+            View v = rowView;
+            if(v == null)
+            {
+                v= LayoutInflater.from(getContext()).inflate(R.layout.listview_clientschannel, null);
+                vChannel = new ViewHolderChannel();
+                vChannel.name = (TextView) v.findViewById(R.id.channel_name);
+                v.setTag(vChannel);
+            } else {
+                vChannel = (ViewHolderChannel) v.getTag();
+            }
+
+
             Channel c = nick[position].getChannel();
-            TextView channel = (TextView) rowView.findViewById(R.id.client_channel);
-            TextView ip = (TextView) rowView.findViewById(R.id.client_ip);
-            TextView client_uid = (TextView) rowView.findViewById(R.id.client_uid);
-            TextView name = (TextView) rowView.findViewById(R.id.server_label);
-            ImageView icon = (ImageView) rowView.findViewById(R.id.client_icon);
-
-
-            ip.setText("");
-            client_uid.setText("");
-            name.setText(c.getName());
-            //channel.setText(api.getChannelInfo(c.getChannelId()).getName());
-            channel.setText("");
-
-            icon.setImageResource(R.mipmap.ic_normal);
-            icon.setImageAlpha(255);
-
+            String channelname = c.getName();
+            if(channelname.contains("[cspacer"))
+            {
+                channelname = channelname.substring(channelname.indexOf("]")+1, channelname.length());
+                vChannel.name.setGravity(Gravity.CENTER);
+            }
+            if(channelname.contains("[spacer"))
+            {
+                channelname = " ";
+                vChannel.name.setGravity(Gravity.CENTER);
+            }
+            if (channelname.contains("[*spacer") || channelname.contains("[*cspacer"))
+            {
+                String channelnamepart = channelname.substring(channelname.indexOf("]")+1, channelname.length());
+                String channelnamefinal = "";
+                for (int i = 0; i < 10; i++) {
+                    channelnamefinal += channelnamepart;
+                }
+                channelname = channelnamefinal;
+                vChannel.name.setGravity(Gravity.CENTER);
+            }
+            vChannel.name.setText(channelname);
+            return v;
         } else {
 
+            ViewHolderClient vClient;
+            View v = rowView;
+            if(v == null)
+            {
+                v= LayoutInflater.from(getContext()).inflate(R.layout.listview_clients, null);
+                vClient = new ViewHolderClient();
+
+                vClient.ip = (TextView) v.findViewById(R.id.client_ip);
+                vClient.client_uid = (TextView) v.findViewById(R.id.client_uid);
+                vClient.name = (TextView) v.findViewById(R.id.server_label);
+                vClient.icon = (ImageView) v.findViewById(R.id.client_icon);
+
+                v.setTag(vClient);
+            } else {
+                vClient = (ViewHolderClient) v.getTag();
+            }
+
+
             Client c = nick[position].getClient();
-            TextView channel = (TextView) rowView.findViewById(R.id.client_channel);
-            TextView ip = (TextView) rowView.findViewById(R.id.client_ip);
-            TextView client_uid = (TextView) rowView.findViewById(R.id.client_uid);
-            TextView name = (TextView) rowView.findViewById(R.id.server_label);
-            ImageView icon = (ImageView) rowView.findViewById(R.id.client_icon);
 
 
-            ip.setText(c.getPlatform() + " | " + c.getCountry());
-            client_uid.setText(c.getUniqueIdentifier());
-            name.setText(c.getNickname());
-            //channel.setText(api.getChannelInfo(c.getChannelId()).getName());
-            channel.setText(c.channel_name);
 
-            icon.setImageResource(R.mipmap.ic_normal);
+            vClient.ip.setText(c.getPlatform() + " | " + c.getCountry());
+            vClient.client_uid.setText(c.getUniqueIdentifier());
+            vClient.name.setText(c.getNickname());
+
+            vClient.icon.setImageResource(R.mipmap.ic_normal);
 
             if(c.isInputMuted()) {
-                icon.setImageResource(R.mipmap.ic_mic_muted);
+                vClient.icon.setImageResource(R.mipmap.ic_mic_muted);
             }
 
             if(c.isOutputMuted()) {
-                icon.setImageResource(R.mipmap.ic_sound_muted);
+                vClient.icon.setImageResource(R.mipmap.ic_sound_muted);
             }
 
             if(!c.isInputHardware()) {
-                icon.setImageResource(R.mipmap.ic_mic_off);
+                vClient.icon.setImageResource(R.mipmap.ic_mic_off);
             }
-
+            return v;
         }
-
-        return rowView;
     }
 }

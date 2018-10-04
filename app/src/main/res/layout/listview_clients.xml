@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="128dip"
+    android:layout_height="wrap_content"
     android:minHeight="0dp"
     android:padding="6dip">
 
@@ -35,33 +35,19 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/client_channel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:text="Client Channel"
-        android:textAlignment="viewEnd"
-        android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/server_label" />
-
-    <TextView
         android:id="@+id/client_ip"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="8dp"
         android:text="XXX.XXX.XXX.XXX"
         android:textAlignment="viewEnd"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.2"
         app:layout_constraintStart_toEndOf="@+id/textView6"
-        app:layout_constraintTop_toBottomOf="@+id/client_channel" />
+        app:layout_constraintTop_toBottomOf="@+id/server_label" />
 
     <TextView
         android:id="@+id/client_uid"
@@ -79,17 +65,6 @@
         app:layout_constraintTop_toBottomOf="@+id/client_ip" />
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:text="Channel:"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/client_icon"
-        app:layout_constraintTop_toBottomOf="@+id/server_label" />
-
-    <TextView
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -105,10 +80,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="8dp"
         android:text="System:"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/client_icon"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/server_label" />
 
 </android.support.constraint.ConstraintLayout>
