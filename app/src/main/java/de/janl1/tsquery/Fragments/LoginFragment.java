@@ -1,4 +1,4 @@
-package de.janl1.tsquery;
+package de.janl1.tsquery.Fragments;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -16,6 +16,8 @@ import android.widget.EditText;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import de.janl1.tsquery.R;
 
 public class LoginFragment extends Fragment {
 

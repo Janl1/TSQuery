@@ -1,4 +1,4 @@
-package de.janl1.tsquery;
+package de.janl1.tsquery.Objects;
 
 
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;

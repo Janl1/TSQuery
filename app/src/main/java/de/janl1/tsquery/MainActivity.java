@@ -2,12 +2,8 @@ package de.janl1.tsquery;
 
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,7 +18,12 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
+
+import de.janl1.tsquery.Fragments.ChannelsFragment;
+import de.janl1.tsquery.Fragments.LoginFragment;
+import de.janl1.tsquery.Fragments.ServerFragment;
+import de.janl1.tsquery.Fragments.ServerinfoFragment;
+import de.janl1.tsquery.Fragments.UsersFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {

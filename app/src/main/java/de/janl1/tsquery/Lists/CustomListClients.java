@@ -5,7 +5,7 @@
  * Janl1.DE for team-hmsk.com
  */
 
-package de.janl1.tsquery;
+package de.janl1.tsquery.Lists;
 
 import android.app.Activity;
 import android.view.Gravity;
@@ -16,9 +16,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
+
+import de.janl1.tsquery.Objects.ClientChannelObject;
+import de.janl1.tsquery.R;
 
 
 public class CustomListClients extends ArrayAdapter<ClientChannelObject>{

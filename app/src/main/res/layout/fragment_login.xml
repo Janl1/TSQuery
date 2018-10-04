@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="de.janl1.tsquery.LoginFragment">
+    tools:context="de.janl1.tsquery.Fragments.LoginFragment">
 
     <!-- TODO: Update blank fragment layout -->
 

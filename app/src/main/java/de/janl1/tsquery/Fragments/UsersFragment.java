@@ -1,4 +1,4 @@
-package de.janl1.tsquery;
+package de.janl1.tsquery.Fragments;
 
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -30,6 +30,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+
+import de.janl1.tsquery.Objects.ClientChannelObject;
+import de.janl1.tsquery.Lists.CustomListClients;
+import de.janl1.tsquery.R;
 
 public class UsersFragment extends Fragment {
 

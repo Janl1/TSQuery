@@ -1,4 +1,4 @@
-package de.janl1.tsquery;
+package de.janl1.tsquery.Fragments;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -26,6 +26,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
+
+import de.janl1.tsquery.Fragments.ServerFragment;
+import de.janl1.tsquery.Lists.CustomListChannels;
+import de.janl1.tsquery.R;
 
 public class ChannelsFragment extends Fragment {
 
